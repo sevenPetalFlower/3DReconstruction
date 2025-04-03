@@ -1,0 +1,7 @@
+.idea/
+__pycache__/
+courtyard_dslr_undistorted/
+multi_view_training_dslr_scan_eval/
+*.png
+test.py
+
