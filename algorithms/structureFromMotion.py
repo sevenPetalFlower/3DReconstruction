@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def getMatches(img1, img2):
+def get_matches(img1, img2):
     sift = cv2.SIFT_create()
     kp1, des1 = sift.detectAndCompute(img1, None)
     kp2, des2 = sift.detectAndCompute(img2, None)
@@ -15,17 +15,21 @@ def getMatches(img1, img2):
     return matches, kp1, kp2
 
 
-def safeMatches(img1, img2, matches, kp1, kp2, numMatches, fileName):
-    img1_color = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
-    img2_color = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
+def get_n_best_matches(matches, kp1, kp2, n):
+    top_matches = matches[:n]
+    pts1 = np.array([kp1[m.queryIdx].pt for m in top_matches], dtype=np.float32)
+    pts2 = np.array([kp2[m.trainIdx].pt for m in top_matches], dtype=np.float32)
+    return top_matches, pts1, pts2
 
+
+def safe_matches(img1, img2, matches, kp1, kp2, numMatches, fileName):
     # Create a new image by concatenating the two images side by side
-    height = max(img1_color.shape[0], img2_color.shape[0])
-    width = img1_color.shape[1] + img2_color.shape[1]
+    height = max(img1.shape[0], img2.shape[0])
+    width = img1.shape[1] + img2.shape[1]
     combined_img = np.zeros((height, width, 3), dtype=np.uint8)
 
-    combined_img[0:img1_color.shape[0], 0:img1_color.shape[1]] = img1_color
-    combined_img[0:img2_color.shape[0], img1_color.shape[1]:] = img2_color
+    combined_img[0:img1.shape[0], 0:img1.shape[1]] = img1
+    combined_img[0:img2.shape[0], img1.shape[1]:] = img2
     # Define the line thickness you desire
     line_thickness = 3  # Increase this number to draw thicker lines
 
@@ -35,7 +39,7 @@ def safeMatches(img1, img2, matches, kp1, kp2, numMatches, fileName):
         pt1 = (int(kp1[m.queryIdx].pt[0]), int(kp1[m.queryIdx].pt[1]))
         # Get the matching keypoints coordinates from the second image,
         # and add the width of the first image since the second image is placed to its right.
-        pt2 = (int(kp2[m.trainIdx].pt[0] + img1_color.shape[1]), int(kp2[m.trainIdx].pt[1]))
+        pt2 = (int(kp2[m.trainIdx].pt[0] + img1.shape[1]), int(kp2[m.trainIdx].pt[1]))
         # Draw a line between the keypoints with the specified thickness and color (green here)
         cv2.line(combined_img, pt1, pt2, (0, 255, 0), thickness=line_thickness)
 
@@ -48,4 +52,4 @@ def safeMatches(img1, img2, matches, kp1, kp2, numMatches, fileName):
     plt.title("Feature Matches")
     plt.axis('off')
     plt.savefig(fileName)  # Save the figure to a file
-    print("Figure saved as matched_features.png")
+    print("Figure saved at " + fileName)
