@@ -34,7 +34,7 @@ def safe_matches(img1, img2, matches, kp1, kp2, numMatches, fileName):
     line_thickness = 3  # Increase this number to draw thicker lines
 
     # Draw the matches: iterate over the first 100 matches
-    for m in matches[:numMatches]:
+    for m in matches:
         # Get the matching keypoints coordinates from the first image
         pt1 = (int(kp1[m.queryIdx].pt[0]), int(kp1[m.queryIdx].pt[1]))
         # Get the matching keypoints coordinates from the second image,
